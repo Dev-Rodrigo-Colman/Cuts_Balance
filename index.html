@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Balance - Peluquería</title>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1c1a17">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MP Cuts">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#1c1a17;
+    --bg-panel:#25211d;
+    --bg-panel-2:#2d2822;
+    --line:#3a342c;
+    --text:#f2ece2;
+    --text-dim:#b3a999;
+    --amber:#d99b3f;
+    --amber-dim:#a67a34;
+    --green:#7fa876;
+    --red:#c26b5a;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+  h1,h2,h3{font-family:'Oswald',sans-serif;margin:0;letter-spacing:.02em;}
+  .num{font-family:'JetBrains Mono',monospace;}
+  header{padding:28px 24px 18px;border-bottom:1px solid var(--line);}
+  header h1{font-size:22px;color:var(--amber);}
+  header p{margin:4px 0 0;color:var(--text-dim);font-size:13px;}
+  nav{display:flex;gap:2px;padding:0 24px;border-bottom:1px solid var(--line);overflow-x:auto;}
+  nav button{background:none;border:none;color:var(--text-dim);font-family:'Oswald',sans-serif;font-size:14px;padding:14px 16px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;}
+  nav button.active{color:var(--amber);border-bottom-color:var(--amber);}
+  main{padding:22px 24px 60px;max-width:900px;margin:0 auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:22px;}
+  .card{background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;padding:16px;}
+  .card .label{font-size:12px;color:var(--text-dim);margin-bottom:6px;}
+  .card .value{font-size:24px;font-weight:700;}
+  .card.pos .value{color:var(--green);}
+  .card.neg .value{color:var(--red);}
+  form{background:var(--bg-panel);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:20px;}
+  form h3{font-size:15px;margin-bottom:14px;color:var(--text);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+  .field{flex:1;min-width:140px;display:flex;flex-direction:column;gap:4px;}
+  label{font-size:11px;color:var(--text-dim);}
+  input,select{background:var(--bg-panel-2);border:1px solid var(--line);color:var(--text);padding:9px 10px;border-radius:6px;font-family:'Inter',sans-serif;font-size:14px;}
+  input:focus,select:focus{outline:none;border-color:var(--amber);}
+  button.primary{background:var(--amber);color:#1c1a17;border:none;padding:10px 18px;border-radius:6px;font-family:'Oswald',sans-serif;font-weight:600;cursor:pointer;margin-top:4px;}
+  button.primary:hover{background:#e5aa4d;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;color:var(--text-dim);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:8px 8px;border-bottom:1px solid var(--line);}
+  td{padding:9px 8px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  .tag-in{color:var(--green);}
+  .tag-out{color:var(--red);}
+  .del{background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:16px;padding:2px 6px;}
+  .del:hover{color:var(--red);}
+  .empty{color:var(--text-dim);font-size:13px;padding:20px 0;text-align:center;}
+  .stock-low{color:var(--red);}
+  .filters{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+  .filters select,.filters input{width:auto;}
+  .section-title{font-size:15px;margin-bottom:12px;color:var(--text-dim);}
+  .hist-actions{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px;}
+  button.secondary{background:none;border:1px solid var(--line);color:var(--text);padding:9px 16px;border-radius:6px;font-family:'Oswald',sans-serif;font-size:13px;cursor:pointer;}
+  button.secondary:hover{border-color:var(--amber);color:var(--amber);}
+  #printTitle, #printTotal{display:none;}
+
+  /* ---------- SPLASH (logo 1 segundo) ---------- */
+  #splash{position:fixed;inset:0;z-index:9999;background:#1c1a17;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
+  #splash.hide{opacity:0;visibility:hidden;}
+  #splash img{width:min(60vw,260px);height:auto;animation:splashIn .5s ease both;}
+  @keyframes splashIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
+  @media (prefers-reduced-motion:reduce){#splash img{animation:none;}}
+
+  /* ---------- MOBILE FIRST ---------- */
+  html{-webkit-text-size-adjust:100%;}
+  body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;}
+  header{padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 14px;}
+  header h1{font-size:20px;}
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:100;gap:0;padding:0 0 env(safe-area-inset-bottom,0px);background:var(--bg-panel);border-top:1px solid var(--line);border-bottom:none;overflow:visible;}
+  nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:500;border-bottom:none;border-top:2px solid transparent;}
+  nav button i{font-style:normal;font-size:19px;line-height:1;filter:grayscale(1) opacity(.7);}
+  nav button.active{border-top-color:var(--amber);}
+  nav button.active i{filter:none;}
+  main{padding:16px 14px calc(88px + env(safe-area-inset-bottom,0px));}
+  .cards{grid-template-columns:1fr 1fr;gap:10px;}
+  .card{padding:14px;}
+  .card .value{font-size:19px;}
+  form{padding:16px;}
+  input,select{font-size:16px;min-height:46px;width:100%;}
+  input[type=file]{min-height:0;padding:10px;}
+  .field{min-width:calc(50% - 5px);}
+  button.primary{width:100%;min-height:48px;font-size:16px;margin-top:8px;}
+  button.secondary{min-height:44px;}
+  .filters select,.filters input{width:100%;flex:1 1 100%;}
+  .hist-actions button{flex:1;}
+  table{font-size:13px;}
+  td{padding:11px 5px;}
+  th{padding:8px 5px;font-size:10px;}
+  .del{min-width:40px;min-height:40px;font-size:18px;}
+  @media (min-width:700px){.cards{grid-template-columns:repeat(4,1fr);}nav{max-width:700px;margin:0 auto;border-radius:14px 14px 0 0;border:1px solid var(--line);}}
+
+  @media print{
+    #splash{display:none !important;}
+    body *{visibility:hidden;}
+    header, nav, .filters, .hist-actions{display:none !important;}
+    #historial, #historial *{visibility:visible;}
+    #historial{position:absolute;top:0;left:0;width:100%;padding:0;}
+    #printTitle, #printTotal{display:block !important;visibility:visible;}
+    #printTitle{font-family:'Oswald',sans-serif;font-size:18px;margin-bottom:4px;color:#000;}
+    #printTotal{font-family:'JetBrains Mono',monospace;font-size:14px;margin-bottom:16px;color:#000;}
+    table{color:#000;}
+    th,td{border-color:#ccc !important;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+
+<div id="splash"><img src="icons/logo-circle.png" alt="MP Cuts Hair Studio"></div>
+
+<header>
+  <h1>Balance — Peluquería</h1>
+  <p>Ingresos, gastos y stock</p>
+</header>
+
+<nav>
+  <button data-view="dashboard" class="active"><i>📊</i>Inicio</button>
+  <button data-view="ingresos"><i>💰</i>Ingresos</button>
+  <button data-view="gastos"><i>🧾</i>Gastos</button>
+  <button data-view="stock"><i>📦</i>Stock</button>
+  <button data-view="historial"><i>🕑</i>Historial</button>
+  <button data-view="respaldo"><i>☁️</i>Respaldo</button>
+</nav>
+
+<main>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard" class="view active">
+    <div class="cards">
+      <div class="card pos"><div class="label">Ingresos (hoy)</div><div class="value num" id="dashIngHoy">₲0</div></div>
+      <div class="card neg"><div class="label">Gastos (hoy)</div><div class="value num" id="dashGasHoy">₲0</div></div>
+      <div class="card"><div class="label">Balance (hoy)</div><div class="value num" id="dashBalHoy">₲0</div></div>
+      <div class="card"><div class="label">Balance total</div><div class="value num" id="dashBalTotal">₲0</div></div>
+    </div>
+    <h3 class="section-title">Productos con stock bajo</h3>
+    <table><tbody id="dashLowStock"></tbody></table>
+  </section>
+
+  <!-- INGRESOS -->
+  <section id="ingresos" class="view">
+    <form id="formIngreso">
+      <h3>Nuevo ingreso</h3>
+      <div class="row">
+        <div class="field">
+          <label>Tipo</label>
+          <select id="ingTipo">
+            <option value="servicio">Servicio</option>
+            <option value="producto">Venta de producto</option>
+          </select>
+        </div>
+        <div class="field" id="ingProductoWrap" style="display:none">
+          <label>Producto</label>
+          <select id="ingProducto"></select>
+        </div>
+        <div class="field" id="ingCantidadWrap" style="display:none">
+          <label>Cantidad</label>
+          <input type="number" id="ingCantidad" min="1" value="1">
+        </div>
+        <div class="field" id="ingDescWrap">
+          <label>Descripción</label>
+          <input type="text" id="ingDesc" placeholder="Ej: Corte + barba">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Monto (₲)</label>
+          <input type="number" id="ingMonto" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="ingFecha">
+        </div>
+      </div>
+      <button type="submit" class="primary">Registrar ingreso</button>
+    </form>
+    <h3 class="section-title">Últimos ingresos</h3>
+    <table><thead><tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th></th></tr></thead><tbody id="listaIngresos"></tbody></table>
+  </section>
+
+  <!-- GASTOS -->
+  <section id="gastos" class="view">
+    <form id="formGasto">
+      <h3>Nuevo gasto</h3>
+      <div class="row">
+        <div class="field">
+          <label>Categoría</label>
+          <select id="gasCategoria">
+            <option>Insumos</option>
+            <option>Alquiler</option>
+            <option>Servicios (luz/agua/internet)</option>
+            <option>Sueldos</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Descripción</label>
+          <input type="text" id="gasDesc" placeholder="Ej: Compra de tinturas">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Monto (₲)</label>
+          <input type="number" id="gasMonto" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="gasFecha">
+        </div>
+      </div>
+      <button type="submit" class="primary">Registrar gasto</button>
+    </form>
+    <h3 class="section-title">Últimos gastos</h3>
+    <table><thead><tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th></th></tr></thead><tbody id="listaGastos"></tbody></table>
+  </section>
+
+  <!-- STOCK -->
+  <section id="stock" class="view">
+    <form id="formStock">
+      <h3>Nuevo producto</h3>
+      <div class="row">
+        <div class="field">
+          <label>Nombre</label>
+          <input type="text" id="stkNombre" placeholder="Ej: Shampoo 1L">
+        </div>
+        <div class="field">
+          <label>Cantidad inicial</label>
+          <input type="number" id="stkCantidad" min="0" value="0">
+        </div>
+        <div class="field">
+          <label>Precio de venta (₲)</label>
+          <input type="number" id="stkPrecio" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Stock mínimo</label>
+          <input type="number" id="stkMinimo" min="0" value="3">
+        </div>
+      </div>
+      <button type="submit" class="primary">Agregar producto</button>
+    </form>
+    <h3 class="section-title">Productos</h3>
+    <table><thead><tr><th>Producto</th><th>Stock</th><th>Precio</th><th>Mínimo</th><th></th></tr></thead><tbody id="listaStock"></tbody></table>
+  </section>
+
+  <!-- HISTORIAL -->
+  <section id="historial" class="view">
+    <div class="filters">
+      <select id="histTipo">
+        <option value="todos">Todos</option>
+        <option value="ingreso">Ingresos</option>
+        <option value="gasto">Gastos</option>
+      </select>
+      <input type="date" id="histDesde">
+      <input type="date" id="histHasta">
+    </div>
+    <div class="hist-actions">
+      <button type="button" class="secondary" id="btnMesActual">Este mes (gastos)</button>
+      <button type="button" class="secondary" id="btnImprimir">🖨 Imprimir</button>
+    </div>
+    <div id="printTitle"></div>
+    <div id="printTotal"></div>
+    <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th></tr></thead><tbody id="listaHistorial"></tbody></table>
+  </section>
+
+  <!-- RESPALDO -->
+  <section id="respaldo" class="view">
+    <div class="card" style="margin-bottom:20px;">
+      <div class="label">¿Por qué hacer un respaldo?</div>
+      <p style="font-size:13px;color:var(--text-dim);line-height:1.6;margin:8px 0 0;">
+        Todos los datos se guardan únicamente en este navegador/dispositivo. Si se desinstala la app,
+        se borra el historial del navegador, o se cambia de celular/compu, <b style="color:var(--text)">los datos se pierden para siempre</b>
+        a menos que haya un respaldo guardado aparte.
+      </p>
+    </div>
+
+    <form onsubmit="return false;">
+      <h3>Descargar respaldo</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin:0 0 12px;">Genera un archivo con todos los ingresos, gastos y stock. Guardalo en Drive, WhatsApp (chat propio) o donde prefieras.</p>
+      <button type="button" class="primary" id="btnExportar">⬇ Descargar respaldo (.json)</button>
+    </form>
+
+    <form onsubmit="return false;">
+      <h3>Restaurar respaldo</h3>
+      <p style="font-size:13px;color:var(--text-dim);margin:0 0 12px;">Subí un archivo de respaldo descargado antes. Esto reemplaza los datos actuales de esta app.</p>
+      <input type="file" id="inputImportar" accept="application/json">
+      <button type="button" class="primary" id="btnImportar" style="margin-top:10px;">⬆ Restaurar</button>
+    </form>
+
+    <div class="card">
+      <div class="label">Último respaldo descargado</div>
+      <div class="value num" id="ultimoRespaldo" style="font-size:16px;">Nunca</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const KEY='peluqueria_balance_v1';
+function load(){
+  const raw = localStorage.getItem(KEY);
+  if(raw) return JSON.parse(raw);
+  return {ingresos:[], gastos:[], stock:[]};
+}
+let data = load();
+function save(){ localStorage.setItem(KEY, JSON.stringify(data)); }
+function fmt(n){ return '₲' + Math.round(n).toLocaleString('es-PY'); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+
+// Navigation
+document.querySelectorAll('nav button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.view).classList.add('active');
+    if(btn.dataset.view==='dashboard') renderDashboard();
+    if(btn.dataset.view==='historial') renderHistorial();
+  });
+});
+
+// ---- INGRESOS ----
+document.getElementById('ingFecha').value = today();
+document.getElementById('ingTipo').addEventListener('change', e=>{
+  const isProd = e.target.value==='producto';
+  document.getElementById('ingProductoWrap').style.display = isProd?'flex':'none';
+  document.getElementById('ingCantidadWrap').style.display = isProd?'flex':'none';
+  document.getElementById('ingDescWrap').style.display = isProd?'none':'flex';
+});
+function refreshProductoSelect(){
+  const sel = document.getElementById('ingProducto');
+  sel.innerHTML = data.stock.map(p=>`<option value="${p.id}">${p.nombre} (stock: ${p.cantidad})</option>`).join('');
+}
+document.getElementById('formIngreso').addEventListener('submit', e=>{
+  e.preventDefault();
+  const tipo = document.getElementById('ingTipo').value;
+  const monto = parseFloat(document.getElementById('ingMonto').value)||0;
+  const fecha = document.getElementById('ingFecha').value || today();
+  if(monto<=0){ alert('Ingresá un monto válido.'); return; }
+  let desc = document.getElementById('ingDesc').value.trim();
+  if(tipo==='producto'){
+    const prodId = document.getElementById('ingProducto').value;
+    const cant = parseInt(document.getElementById('ingCantidad').value)||1;
+    const prod = data.stock.find(p=>p.id===prodId);
+    if(!prod){ alert('Agregá un producto en Stock primero.'); return; }
+    if(prod.cantidad < cant){ alert('No hay stock suficiente de "'+prod.nombre+'". Stock actual: '+prod.cantidad); return; }
+    prod.cantidad -= cant;
+    desc = `Venta: ${prod.nombre} x${cant}`;
+  } else {
+    if(!desc){ desc = 'Servicio'; }
+  }
+  data.ingresos.unshift({id:uid(), desc, monto, fecha});
+  save();
+  document.getElementById('ingMonto').value='';
+  document.getElementById('ingDesc').value='';
+  document.getElementById('ingCantidad').value=1;
+  renderIngresos(); renderStock(); refreshProductoSelect();
+});
+function renderIngresos(){
+  const tbody = document.getElementById('listaIngresos');
+  const items = data.ingresos.slice(0,15);
+  tbody.innerHTML = items.length ? items.map(i=>`
+    <tr><td>${i.fecha}</td><td>${i.desc}</td><td class="num tag-in">${fmt(i.monto)}</td>
+    <td><button class="del" onclick="delIngreso('${i.id}')">✕</button></td></tr>
+  `).join('') : `<tr><td colspan="4" class="empty">Sin ingresos registrados</td></tr>`;
+}
+function delIngreso(id){
+  data.ingresos = data.ingresos.filter(i=>i.id!==id);
+  save(); renderIngresos();
+}
+
+// ---- GASTOS ----
+document.getElementById('gasFecha').value = today();
+document.getElementById('formGasto').addEventListener('submit', e=>{
+  e.preventDefault();
+  const categoria = document.getElementById('gasCategoria').value;
+  const desc = document.getElementById('gasDesc').value.trim() || categoria;
+  const monto = parseFloat(document.getElementById('gasMonto').value)||0;
+  const fecha = document.getElementById('gasFecha').value || today();
+  if(monto<=0){ alert('Ingresá un monto válido.'); return; }
+  data.gastos.unshift({id:uid(), categoria, desc, monto, fecha});
+  save();
+  document.getElementById('gasDesc').value='';
+  document.getElementById('gasMonto').value='';
+  renderGastos();
+});
+function renderGastos(){
+  const tbody = document.getElementById('listaGastos');
+  const items = data.gastos.slice(0,15);
+  tbody.innerHTML = items.length ? items.map(g=>`
+    <tr><td>${g.fecha}</td><td>${g.categoria}</td><td>${g.desc}</td><td class="num tag-out">${fmt(g.monto)}</td>
+    <td><button class="del" onclick="delGasto('${g.id}')">✕</button></td></tr>
+  `).join('') : `<tr><td colspan="5" class="empty">Sin gastos registrados</td></tr>`;
+}
+function delGasto(id){
+  data.gastos = data.gastos.filter(g=>g.id!==id);
+  save(); renderGastos();
+}
+
+// ---- STOCK ----
+document.getElementById('formStock').addEventListener('submit', e=>{
+  e.preventDefault();
+  const nombre = document.getElementById('stkNombre').value.trim();
+  const cantidad = parseInt(document.getElementById('stkCantidad').value)||0;
+  const precio = parseFloat(document.getElementById('stkPrecio').value)||0;
+  const minimo = parseInt(document.getElementById('stkMinimo').value)||0;
+  if(!nombre){ alert('Ingresá el nombre del producto.'); return; }
+  data.stock.unshift({id:uid(), nombre, cantidad, precio, minimo});
+  save();
+  document.getElementById('stkNombre').value='';
+  document.getElementById('stkCantidad').value=0;
+  document.getElementById('stkPrecio').value='';
+  document.getElementById('stkMinimo').value=3;
+  renderStock(); refreshProductoSelect();
+});
+function renderStock(){
+  const tbody = document.getElementById('listaStock');
+  tbody.innerHTML = data.stock.length ? data.stock.map(p=>`
+    <tr><td>${p.nombre}</td><td class="num ${p.cantidad<=p.minimo?'stock-low':''}">${p.cantidad}</td>
+    <td class="num">${fmt(p.precio)}</td><td class="num">${p.minimo}</td>
+    <td><button class="del" onclick="delStock('${p.id}')">✕</button></td></tr>
+  `).join('') : `<tr><td colspan="5" class="empty">Sin productos cargados</td></tr>`;
+}
+function delStock(id){
+  data.stock = data.stock.filter(p=>p.id!==id);
+  save(); renderStock(); refreshProductoSelect();
+}
+
+// ---- DASHBOARD ----
+function renderDashboard(){
+  const t = today();
+  const ingHoy = data.ingresos.filter(i=>i.fecha===t).reduce((s,i)=>s+i.monto,0);
+  const gasHoy = data.gastos.filter(g=>g.fecha===t).reduce((s,g)=>s+g.monto,0);
+  const ingTotal = data.ingresos.reduce((s,i)=>s+i.monto,0);
+  const gasTotal = data.gastos.reduce((s,g)=>s+g.monto,0);
+  document.getElementById('dashIngHoy').textContent = fmt(ingHoy);
+  document.getElementById('dashGasHoy').textContent = fmt(gasHoy);
+  document.getElementById('dashBalHoy').textContent = fmt(ingHoy-gasHoy);
+  document.getElementById('dashBalTotal').textContent = fmt(ingTotal-gasTotal);
+
+  const low = data.stock.filter(p=>p.cantidad<=p.minimo);
+  const tbody = document.getElementById('dashLowStock');
+  tbody.innerHTML = low.length ? low.map(p=>`
+    <tr><td>${p.nombre}</td><td class="num stock-low">Quedan ${p.cantidad}</td></tr>
+  `).join('') : `<tr><td class="empty">Ningún producto con stock bajo</td></tr>`;
+}
+
+// ---- HISTORIAL ----
+function renderHistorial(){
+  const tipo = document.getElementById('histTipo').value;
+  const desde = document.getElementById('histDesde').value;
+  const hasta = document.getElementById('histHasta').value;
+  let items = [
+    ...data.ingresos.map(i=>({...i, tipo:'ingreso'})),
+    ...data.gastos.map(g=>({...g, tipo:'gasto'}))
+  ];
+  if(tipo!=='todos') items = items.filter(i=>i.tipo===tipo);
+  if(desde) items = items.filter(i=>i.fecha>=desde);
+  if(hasta) items = items.filter(i=>i.fecha<=hasta);
+  items.sort((a,b)=> b.fecha.localeCompare(a.fecha));
+  const tbody = document.getElementById('listaHistorial');
+  tbody.innerHTML = items.length ? items.map(i=>`
+    <tr><td>${i.fecha}</td><td class="${i.tipo==='ingreso'?'tag-in':'tag-out'}">${i.tipo==='ingreso'?'Ingreso':'Gasto'}</td>
+    <td>${i.desc}</td><td class="num ${i.tipo==='ingreso'?'tag-in':'tag-out'}">${fmt(i.monto)}</td></tr>
+  `).join('') : `<tr><td colspan="4" class="empty">Sin movimientos en el rango seleccionado</td></tr>`;
+
+  // info para impresión
+  const total = items.reduce((s,i)=> s + (i.tipo==='gasto' ? -i.monto : i.monto), 0);
+  const rango = (desde||hasta) ? `${desde||'…'} a ${hasta||'…'}` : 'todas las fechas';
+  const tipoLabel = tipo==='todos' ? 'Movimientos' : (tipo==='gasto'?'Gastos':'Ingresos');
+  document.getElementById('printTitle').textContent = `${tipoLabel} — ${rango}`;
+  document.getElementById('printTotal').textContent = `Total: ${fmt(Math.abs(total))}${tipo==='todos' ? ' (balance)' : ''}`;
+}
+document.getElementById('histTipo').addEventListener('change', renderHistorial);
+document.getElementById('histDesde').addEventListener('change', renderHistorial);
+document.getElementById('histHasta').addEventListener('change', renderHistorial);
+document.getElementById('btnMesActual').addEventListener('click', ()=>{
+  const d = new Date();
+  const desde = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10);
+  const hasta = new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10);
+  document.getElementById('histTipo').value = 'gasto';
+  document.getElementById('histDesde').value = desde;
+  document.getElementById('histHasta').value = hasta;
+  renderHistorial();
+});
+document.getElementById('btnImprimir').addEventListener('click', ()=> window.print());
+
+// ---- RESPALDO ----
+const BACKUP_KEY = 'peluqueria_balance_ultimo_respaldo';
+function renderUltimoRespaldo(){
+  const fecha = localStorage.getItem(BACKUP_KEY);
+  document.getElementById('ultimoRespaldo').textContent = fecha || 'Nunca';
+}
+document.getElementById('btnExportar').addEventListener('click', ()=>{
+  const payload = {...data, exportadoEl: new Date().toISOString()};
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const fechaArchivo = today();
+  a.href = url;
+  a.download = `respaldo-peluqueria-${fechaArchivo}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  localStorage.setItem(BACKUP_KEY, new Date().toLocaleString('es-PY'));
+  renderUltimoRespaldo();
+});
+document.getElementById('btnImportar').addEventListener('click', ()=>{
+  const file = document.getElementById('inputImportar').files[0];
+  if(!file){ alert('Elegí primero un archivo de respaldo.'); return; }
+  const reader = new FileReader();
+  reader.onload = (e)=>{
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if(!parsed.ingresos || !parsed.gastos || !parsed.stock){
+        alert('El archivo no parece un respaldo válido.');
+        return;
+      }
+      if(!confirm('Esto va a reemplazar todos los datos actuales por los del respaldo. ¿Continuar?')) return;
+      data = {ingresos:parsed.ingresos, gastos:parsed.gastos, stock:parsed.stock};
+      save();
+      refreshProductoSelect(); renderIngresos(); renderGastos(); renderStock(); renderDashboard(); renderHistorial();
+      alert('Respaldo restaurado correctamente.');
+    }catch(err){
+      alert('No se pudo leer el archivo. Verificá que sea un respaldo válido (.json).');
+    }
+  };
+  reader.readAsText(file);
+});
+
+// init
+refreshProductoSelect();
+renderIngresos();
+renderGastos();
+renderStock();
+renderDashboard();
+renderUltimoRespaldo();
+
+// ---- SPLASH: el logo se ve 1 segundo y se desvanece ----
+setTimeout(()=>{
+  const s = document.getElementById('splash');
+  if(!s) return;
+  s.classList.add('hide');
+  setTimeout(()=>s.remove(), 400);
+}, 1000);
+
+// ---- PWA: instalación y uso sin conexión ----
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
