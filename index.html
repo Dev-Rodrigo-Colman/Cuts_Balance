@@ -2,17 +2,12 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Balance - Peluquería</title>
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="./manifest.webmanifest">
 <meta name="theme-color" content="#1c1a17">
-<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="MP Cuts">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -73,46 +68,9 @@
   button.secondary{background:none;border:1px solid var(--line);color:var(--text);padding:9px 16px;border-radius:6px;font-family:'Oswald',sans-serif;font-size:13px;cursor:pointer;}
   button.secondary:hover{border-color:var(--amber);color:var(--amber);}
   #printTitle, #printTotal{display:none;}
-
-  /* ---------- SPLASH (logo 1 segundo) ---------- */
-  #splash{position:fixed;inset:0;z-index:9999;background:#1c1a17;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s;}
-  #splash.hide{opacity:0;visibility:hidden;}
-  #splash img{width:min(60vw,260px);height:auto;animation:splashIn .5s ease both;}
-  @keyframes splashIn{from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
-  @media (prefers-reduced-motion:reduce){#splash img{animation:none;}}
-
-  /* ---------- MOBILE FIRST ---------- */
-  html{-webkit-text-size-adjust:100%;}
-  body{-webkit-tap-highlight-color:transparent;overscroll-behavior-y:none;}
-  header{padding:calc(env(safe-area-inset-top,0px) + 18px) 18px 14px;}
-  header h1{font-size:20px;}
-  nav{position:fixed;left:0;right:0;bottom:0;z-index:100;gap:0;padding:0 0 env(safe-area-inset-bottom,0px);background:var(--bg-panel);border-top:1px solid var(--line);border-bottom:none;overflow:visible;}
-  nav button{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 2px 8px;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:500;border-bottom:none;border-top:2px solid transparent;}
-  nav button i{font-style:normal;font-size:19px;line-height:1;filter:grayscale(1) opacity(.7);}
-  nav button.active{border-top-color:var(--amber);}
-  nav button.active i{filter:none;}
-  main{padding:16px 14px calc(88px + env(safe-area-inset-bottom,0px));}
-  .cards{grid-template-columns:1fr 1fr;gap:10px;}
-  .card{padding:14px;}
-  .card .value{font-size:19px;}
-  form{padding:16px;}
-  input,select{font-size:16px;min-height:46px;width:100%;}
-  input[type=file]{min-height:0;padding:10px;}
-  .field{min-width:calc(50% - 5px);}
-  button.primary{width:100%;min-height:48px;font-size:16px;margin-top:8px;}
-  button.secondary{min-height:44px;}
-  .filters select,.filters input{width:100%;flex:1 1 100%;}
-  .hist-actions button{flex:1;}
-  table{font-size:13px;}
-  td{padding:11px 5px;}
-  th{padding:8px 5px;font-size:10px;}
-  .del{min-width:40px;min-height:40px;font-size:18px;}
-  @media (min-width:700px){.cards{grid-template-columns:repeat(4,1fr);}nav{max-width:700px;margin:0 auto;border-radius:14px 14px 0 0;border:1px solid var(--line);}}
-
   @media print{
-    #splash{display:none !important;}
     body *{visibility:hidden;}
-    header, nav, .filters, .hist-actions{display:none !important;}
+    header, nav, .filters, .hist-actions, #historial .cards{display:none !important;}
     #historial, #historial *{visibility:visible;}
     #historial{position:absolute;top:0;left:0;width:100%;padding:0;}
     #printTitle, #printTotal{display:block !important;visibility:visible;}
@@ -126,32 +84,54 @@
 </head>
 <body>
 
-<div id="splash"><img src="icons/logo-circle.png" alt="MP Cuts Hair Studio"></div>
-
 <header>
   <h1>Balance — Peluquería</h1>
   <p>Ingresos, gastos y stock</p>
 </header>
 
 <nav>
-  <button data-view="dashboard" class="active"><i>📊</i>Inicio</button>
-  <button data-view="ingresos"><i>💰</i>Ingresos</button>
-  <button data-view="gastos"><i>🧾</i>Gastos</button>
-  <button data-view="stock"><i>📦</i>Stock</button>
-  <button data-view="historial"><i>🕑</i>Historial</button>
-  <button data-view="respaldo"><i>☁️</i>Respaldo</button>
+  <button data-view="dashboard" class="active">Dashboard</button>
+  <button data-view="ingresos">Ingresos</button>
+  <button data-view="gastos">Gastos</button>
+  <button data-view="stock">Stock</button>
+  <button data-view="historial">Historial</button>
+  <button data-view="respaldo">Respaldo</button>
 </nav>
 
 <main>
 
   <!-- DASHBOARD -->
   <section id="dashboard" class="view active">
+    <div class="hist-actions" style="margin-top:4px;">
+      <h3 class="section-title" style="margin-bottom:0;">Balance por día</h3>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input type="date" id="dashDiaSelect">
+        <button type="button" class="secondary" id="btnDiaHoy">Hoy</button>
+      </div>
+    </div>
     <div class="cards">
-      <div class="card pos"><div class="label">Ingresos (hoy)</div><div class="value num" id="dashIngHoy">₲0</div></div>
-      <div class="card neg"><div class="label">Gastos (hoy)</div><div class="value num" id="dashGasHoy">₲0</div></div>
-      <div class="card"><div class="label">Balance (hoy)</div><div class="value num" id="dashBalHoy">₲0</div></div>
+      <div class="card pos"><div class="label">Ingresos</div><div class="value num" id="dashIngHoy">₲0</div></div>
+      <div class="card neg"><div class="label">Gastos</div><div class="value num" id="dashGasHoy">₲0</div></div>
+      <div class="card"><div class="label">Balance del día</div><div class="value num" id="dashBalHoy">₲0</div></div>
+    </div>
+
+    <div class="hist-actions" style="margin-top:4px;">
+      <h3 class="section-title" style="margin-bottom:0;">Balance por mes</h3>
+      <select id="dashMesSelect"></select>
+    </div>
+    <div class="cards">
+      <div class="card pos"><div class="label">Ingresos</div><div class="value num" id="dashIngMes">₲0</div></div>
+      <div class="card neg"><div class="label">Gastos</div><div class="value num" id="dashGasMes">₲0</div></div>
+      <div class="card"><div class="label">Balance del mes</div><div class="value num" id="dashBalMes">₲0</div></div>
+    </div>
+
+    <h3 class="section-title">Total general (desde que se usa el sistema)</h3>
+    <div class="cards">
+      <div class="card pos"><div class="label">Ingresos</div><div class="value num" id="dashIngTotal">₲0</div></div>
+      <div class="card neg"><div class="label">Gastos</div><div class="value num" id="dashGasTotal">₲0</div></div>
       <div class="card"><div class="label">Balance total</div><div class="value num" id="dashBalTotal">₲0</div></div>
     </div>
+
     <h3 class="section-title">Productos con stock bajo</h3>
     <table><tbody id="dashLowStock"></tbody></table>
   </section>
@@ -279,6 +259,11 @@
     <div id="printTitle"></div>
     <div id="printTotal"></div>
     <table><thead><tr><th>Fecha</th><th>Tipo</th><th>Descripción</th><th>Monto</th></tr></thead><tbody id="listaHistorial"></tbody></table>
+    <div class="cards" style="margin-top:16px;">
+      <div class="card pos"><div class="label">Ingresos (del listado)</div><div class="value num" id="histIngresos">₲0</div></div>
+      <div class="card neg"><div class="label">Gastos (del listado)</div><div class="value num" id="histGastos">₲0</div></div>
+      <div class="card"><div class="label">Balance (del listado)</div><div class="value num" id="histBalance">₲0</div></div>
+    </div>
   </section>
 
   <!-- RESPALDO -->
@@ -323,7 +308,14 @@ function load(){
 let data = load();
 function save(){ localStorage.setItem(KEY, JSON.stringify(data)); }
 function fmt(n){ return '₲' + Math.round(n).toLocaleString('es-PY'); }
-function today(){ return new Date().toISOString().slice(0,10); }
+function localDateStr(d){
+  // Fecha LOCAL (no UTC) en formato YYYY-MM-DD, para que el día no cambie antes de tiempo
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function today(){ return localDateStr(new Date()); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 
 // Navigation
@@ -446,15 +438,52 @@ function delStock(id){
 }
 
 // ---- DASHBOARD ----
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+function poblarSelectorMes(){
+  const sel = document.getElementById('dashMesSelect');
+  const seleccionPrevia = sel.value;
+  const mesActual = today().slice(0,7);
+  const set = new Set([mesActual]);
+  data.ingresos.forEach(i=>set.add(i.fecha.slice(0,7)));
+  data.gastos.forEach(g=>set.add(g.fecha.slice(0,7)));
+  const meses = Array.from(set).sort().reverse(); // más reciente primero
+  sel.innerHTML = meses.map(m=>{
+    const [y,mo] = m.split('-');
+    const etiqueta = `${MESES[parseInt(mo)-1]} ${y}` + (m===mesActual ? ' (actual)' : '');
+    return `<option value="${m}">${etiqueta}</option>`;
+  }).join('');
+  // mantener el mes que tenía elegido si todavía existe, si no usar el actual
+  sel.value = meses.includes(seleccionPrevia) ? seleccionPrevia : mesActual;
+}
 function renderDashboard(){
   const t = today();
-  const ingHoy = data.ingresos.filter(i=>i.fecha===t).reduce((s,i)=>s+i.monto,0);
-  const gasHoy = data.gastos.filter(g=>g.fecha===t).reduce((s,g)=>s+g.monto,0);
+
+  const diaInput = document.getElementById('dashDiaSelect');
+  if(!diaInput.value) diaInput.value = t;
+  const diaElegido = diaInput.value;
+
+  poblarSelectorMes();
+  const mesElegido = document.getElementById('dashMesSelect').value;
+
+  const ingHoy = data.ingresos.filter(i=>i.fecha===diaElegido).reduce((s,i)=>s+i.monto,0);
+  const gasHoy = data.gastos.filter(g=>g.fecha===diaElegido).reduce((s,g)=>s+g.monto,0);
+
+  const ingMes = data.ingresos.filter(i=>i.fecha.slice(0,7)===mesElegido).reduce((s,i)=>s+i.monto,0);
+  const gasMes = data.gastos.filter(g=>g.fecha.slice(0,7)===mesElegido).reduce((s,g)=>s+g.monto,0);
+
   const ingTotal = data.ingresos.reduce((s,i)=>s+i.monto,0);
   const gasTotal = data.gastos.reduce((s,g)=>s+g.monto,0);
+
   document.getElementById('dashIngHoy').textContent = fmt(ingHoy);
   document.getElementById('dashGasHoy').textContent = fmt(gasHoy);
   document.getElementById('dashBalHoy').textContent = fmt(ingHoy-gasHoy);
+
+  document.getElementById('dashIngMes').textContent = fmt(ingMes);
+  document.getElementById('dashGasMes').textContent = fmt(gasMes);
+  document.getElementById('dashBalMes').textContent = fmt(ingMes-gasMes);
+
+  document.getElementById('dashIngTotal').textContent = fmt(ingTotal);
+  document.getElementById('dashGasTotal').textContent = fmt(gasTotal);
   document.getElementById('dashBalTotal').textContent = fmt(ingTotal-gasTotal);
 
   const low = data.stock.filter(p=>p.cantidad<=p.minimo);
@@ -483,20 +512,28 @@ function renderHistorial(){
     <td>${i.desc}</td><td class="num ${i.tipo==='ingreso'?'tag-in':'tag-out'}">${fmt(i.monto)}</td></tr>
   `).join('') : `<tr><td colspan="4" class="empty">Sin movimientos en el rango seleccionado</td></tr>`;
 
-  // info para impresión
-  const total = items.reduce((s,i)=> s + (i.tipo==='gasto' ? -i.monto : i.monto), 0);
+  // totales del listado filtrado (se muestran en pantalla y al imprimir)
+  const sumIng = items.filter(i=>i.tipo==='ingreso').reduce((s,i)=>s+i.monto,0);
+  const sumGas = items.filter(i=>i.tipo==='gasto').reduce((s,i)=>s+i.monto,0);
+  const balance = sumIng - sumGas;
+  document.getElementById('histIngresos').textContent = fmt(sumIng);
+  document.getElementById('histGastos').textContent = fmt(sumGas);
+  document.getElementById('histBalance').textContent = fmt(balance);
+
   const rango = (desde||hasta) ? `${desde||'…'} a ${hasta||'…'}` : 'todas las fechas';
   const tipoLabel = tipo==='todos' ? 'Movimientos' : (tipo==='gasto'?'Gastos':'Ingresos');
   document.getElementById('printTitle').textContent = `${tipoLabel} — ${rango}`;
-  document.getElementById('printTotal').textContent = `Total: ${fmt(Math.abs(total))}${tipo==='todos' ? ' (balance)' : ''}`;
+  document.getElementById('printTotal').textContent = tipo==='todos'
+    ? `Ingresos: ${fmt(sumIng)}  |  Gastos: ${fmt(sumGas)}  |  Balance: ${fmt(balance)}`
+    : `Total: ${fmt(tipo==='gasto'?sumGas:sumIng)}`;
 }
 document.getElementById('histTipo').addEventListener('change', renderHistorial);
 document.getElementById('histDesde').addEventListener('change', renderHistorial);
 document.getElementById('histHasta').addEventListener('change', renderHistorial);
 document.getElementById('btnMesActual').addEventListener('click', ()=>{
   const d = new Date();
-  const desde = new Date(d.getFullYear(), d.getMonth(), 1).toISOString().slice(0,10);
-  const hasta = new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10);
+  const desde = localDateStr(new Date(d.getFullYear(), d.getMonth(), 1));
+  const hasta = localDateStr(new Date(d.getFullYear(), d.getMonth()+1, 0));
   document.getElementById('histTipo').value = 'gasto';
   document.getElementById('histDesde').value = desde;
   document.getElementById('histHasta').value = hasta;
@@ -548,6 +585,13 @@ document.getElementById('btnImportar').addEventListener('click', ()=>{
   reader.readAsText(file);
 });
 
+document.getElementById('dashMesSelect').addEventListener('change', renderDashboard);
+document.getElementById('dashDiaSelect').addEventListener('change', renderDashboard);
+document.getElementById('btnDiaHoy').addEventListener('click', ()=>{
+  document.getElementById('dashDiaSelect').value = today();
+  renderDashboard();
+});
+
 // init
 refreshProductoSelect();
 renderIngresos();
@@ -555,18 +599,12 @@ renderGastos();
 renderStock();
 renderDashboard();
 renderUltimoRespaldo();
-
-// ---- SPLASH: el logo se ve 1 segundo y se desvanece ----
-setTimeout(()=>{
-  const s = document.getElementById('splash');
-  if(!s) return;
-  s.classList.add('hide');
-  setTimeout(()=>s.remove(), 400);
-}, 1000);
-
-// ---- PWA: instalación y uso sin conexión ----
+</script>
+<script>
 if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=> navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(err=>console.log('SW error:', err));
+  });
 }
 </script>
 </body>
